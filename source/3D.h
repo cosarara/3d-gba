@@ -35,7 +35,32 @@ typedef struct Triangle3d {
 	Vec3d a;
 	Vec3d b;
 	Vec3d c;
-} Triangle;
+	uint color;
+} Triangle3d;
+
+typedef struct Quad2d {
+	Vec2d a;
+	Vec2d b;
+	Vec2d c;
+	Vec2d d;
+} Quad2d;
+
+typedef struct Quad3d {
+	Vec3d a;
+	Vec3d b;
+	Vec3d c;
+	Vec3d d;
+	uint color;
+} Quad3d;
+
+typedef struct Mesh {
+	Segment* segments;
+	uint seg_n;
+	Triangle3d** triangles;
+	uint tri_n;
+	Quad3d** quads;
+	uint quad_n;
+} Mesh;
 
 void add_Vec3d(Vec3d* dst, Vec3d* a, Vec3d* b);
 void add_Vec2d(Vec2d* dst, Vec2d* a, Vec2d* b);
@@ -43,11 +68,19 @@ int fxmul_(int a, int b);
 void rot_vec_xy(Vec3d* v, int ca, int sa);
 void rot_vec_xz(Vec3d* v, int ca, int sa);
 void rot_vec_yz(Vec3d* v, int ca, int sa);
-void rot_mesh(Segment* mesh, uint len, void (*f)(Vec3d*, int, int), int ca, int sa);
+void rot_segments(Segment* segments, uint len, void (*f)(Vec3d*, int, int), int ca, int sa);
+void rot_mesh(Mesh* mesh, void (*f)(Vec3d*, int, int), int ca, int sa);
 void draw_line_ortho(const Vec2d* o, const Vec3d* a, const Vec3d* b);
-void draw_mesh_ortho(const Vec2d* o, Segment* mesh, uint len);
+void draw_segments_ortho(const Vec2d* o, Segment* mesh, uint len);
 void project(Vec3d* out, const Vec3d* point);
 void draw_line_persp(const Vec2d* o, const Vec3d* a, const Vec3d* b);
-void draw_mesh_persp(const Vec2d* o, Segment* mesh, uint len);
+void draw_segments_persp(const Vec2d* o, Segment* mesh, uint len);
+void draw_mesh_persp(const Vec2d* o, Mesh* mesh);
+void draw_mesh_ortho(const Vec2d* o, Mesh* mesh);
+void project(Vec3d* out, const Vec3d* point);
+
+void raster_triangle(const Vec2d* o, Triangle3d* t, uint color);
+void sort_triangles(Triangle3d** triangles, uint num);
+//extern s32 zbuffer[240*160];
 
 #endif

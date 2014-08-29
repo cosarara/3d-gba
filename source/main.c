@@ -110,7 +110,7 @@ int main() {
 	int ca, sa;
 	int ca2, sa2;
 	int ca3, sa3;
-	int draw_mode = 1;
+	int draw_mode = 0;
 	int rotate_xz = 1;
 	int rotate_xy = 1;
 	int rotate_yz = 1;
@@ -128,6 +128,10 @@ int main() {
 	pal_bg_mem[2]= CLR_RED;
 	pal_bg_mem[3]= CLR_BLUE;
 	pal_bg_mem[4]= CLR_YELLOW;
+	pal_bg_mem[5]= CLR_GREEN;
+	pal_bg_mem[6]= CLR_PURPLE;
+	pal_bg_mem[7]= CLR_CYAN;
+	pal_bg_mem[8]= CLR_ORANGE;
 	pal_bg_mem[255]= CLR_WHITE;
 	
 	txt_init_std();

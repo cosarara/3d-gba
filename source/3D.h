@@ -81,6 +81,8 @@ void project(Vec3d* out, const Vec3d* point);
 
 void raster_triangle(const Vec2d* o, Triangle3d* t, uint color);
 void sort_triangles(Triangle3d** triangles, uint num);
+void sort_quads(Quad3d** quads, uint num);
+void draw_hline(const Vec2d* o, int y, int x1, int x2, int z, uint color);
 //extern s32 zbuffer[240*160];
 
 #endif

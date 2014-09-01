@@ -76,7 +76,7 @@ void raster_subtrap(const Vec2d* o, Vec3d* a, Vec3d* b, Vec3d* c, Vec3d* d, uint
 
 		for(ii=dxa; ii>=0; ii--)
 		{
-			draw_hline(o, ya, xa, xb, b->z, color);
+			draw_hline(o, ya, xa, xb, color);
 			if (dda >= 0)
 			{
 				dda -= 2*dxa;
@@ -111,7 +111,7 @@ void raster_subtrap(const Vec2d* o, Vec3d* a, Vec3d* b, Vec3d* c, Vec3d* d, uint
 
 		for(ii=dy; ii>=0; ii--)
 		{
-			draw_hline(o, ya, xa, xb, b->z, color);
+			draw_hline(o, ya, xa, xb, color);
 			if (dda >= 0)
 			{
 				dda -= 2*dy;
@@ -145,6 +145,7 @@ void raster_subtrap(const Vec2d* o, Vec3d* a, Vec3d* b, Vec3d* c, Vec3d* d, uint
 
 void raster_trap(const Vec2d* o, Quad3d* q, uint color) {
 	int flat_right, flat_left;
+	int x1, x2, y1, y2;
 	
 	sort_points_xy(q);
 	//die_int(q->a.x);
@@ -156,7 +157,11 @@ void raster_trap(const Vec2d* o, Quad3d* q, uint color) {
 	flat_left = q->a.x == q->c.x;
 	flat_right = q->b.x == q->d.x;
 	if (flat_left && flat_right) {
-		m4_rect(q->a.x+o->x, q->a.y+o->y, q->d.x+o->x, q->d.y+o->y, color);
+		x1 = clamp(q->a.x+o->x, 5, 235);
+		x2 = clamp(q->d.x+o->x, 5, 235);
+		y1 = clamp(q->a.y+o->y, 5, 155);
+		y2 = clamp(q->d.y+o->y, 5, 155);
+		m4_rect(x1, y1, x2, y2, color);
 		return;
 	}
 	raster_subtrap(o, &q->a, &q->b, &q->c, &q->d, color);

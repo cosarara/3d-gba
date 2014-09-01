@@ -72,17 +72,17 @@ void rot_segments(Segment* segments, uint len, void (*f)(Vec3d*, int, int), int 
 void rot_mesh(Mesh* mesh, void (*f)(Vec3d*, int, int), int ca, int sa);
 void draw_line_ortho(const Vec2d* o, const Vec3d* a, const Vec3d* b);
 void draw_segments_ortho(const Vec2d* o, Segment* mesh, uint len);
-void project(Vec3d* out, const Vec3d* point);
-void draw_line_persp(const Vec2d* o, const Vec3d* a, const Vec3d* b);
-void draw_segments_persp(const Vec2d* o, Segment* mesh, uint len);
-void draw_mesh_persp(const Vec2d* o, Mesh* mesh);
+void project(const Vec3d* o, Vec3d* out, const Vec3d* point);
+//void draw_line_persp(const Vec3d* o, const Vec3d* a, const Vec3d* b);
+//void draw_segments_persp(const Vec3d* o, Segment* mesh, uint len);
+void draw_mesh_persp(const Vec2d* o2d, const Vec3d* o3d, Mesh* mesh);
 void draw_mesh_ortho(const Vec2d* o, Mesh* mesh);
-void project(Vec3d* out, const Vec3d* point);
 
 void raster_triangle(const Vec2d* o, Triangle3d* t, uint color);
 void sort_triangles(Triangle3d** triangles, uint num);
 void sort_quads(Quad3d** quads, uint num);
-void draw_hline(const Vec2d* o, int y, int x1, int x2, int z, uint color);
+void draw_hline(const Vec2d* o, int y, int x1, int x2, uint color);
+void trans_mesh(Mesh* mesh, Vec3d* v);
 //extern s32 zbuffer[240*160];
 
 #endif

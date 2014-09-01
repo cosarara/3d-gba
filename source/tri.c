@@ -100,7 +100,7 @@ void raster_subtriangle_fast(const Vec2d* o, Vec3d* a, Vec3d* b, Vec3d* c, uint 
 
 		for(ii=dxa; ii>=0; ii--)
 		{
-			draw_hline(o, ya, xa, xb, b->z, color);
+			draw_hline(o, ya, xa, xb, color);
 			if (dda >= 0)
 			{
 				dda -= 2*dxa;
@@ -135,7 +135,7 @@ void raster_subtriangle_fast(const Vec2d* o, Vec3d* a, Vec3d* b, Vec3d* c, uint 
 
 		for(ii=dy; ii>=0; ii--)
 		{
-			draw_hline(o, ya, xa, xb, b->z, color);
+			draw_hline(o, ya, xa, xb, color);
 			if (dda >= 0)
 			{
 				dda -= 2*dy;
@@ -186,11 +186,8 @@ void raster_subtriangle_top(const Vec2d* o, Vec3d* a, Vec3d* b, Vec3d* c, uint c
 			x2 = tmp;
 		}
 		y = scanlineY+o->y;
-		//s32* zb = &zbuffer[y*240+x1];
-		//if (x1 != x2 && *zb > b->z) { // XXX
 		if (x1 != x2) { // XXX
 			m4_hline(x1, y, x2, color);
-			//memset32(zb, b->z, x2-x1-1);
 		}
 		curx1 += invslope1;
 		curx2 += invslope2;

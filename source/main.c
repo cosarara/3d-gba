@@ -1,5 +1,5 @@
 #include <stdio.h>
-//#include <string.h>
+#include <string.h>
 #include <tonc.h>
 #include "utils.h"
 #include "3D.h"
@@ -99,21 +99,27 @@ Mesh mesh2 = {smesh2, sizeof(smesh2) / sizeof(Segment), tmesh2_, N_TRIANGLES, qm
 
 const Vec2d origin = {120, 80};
 const Vec2d origin0 = {0, 0};
-const Vec3d origin3d = {100, 60, 0};
+Vec3d origin3d = {120, 80, 0};
+Vec3d origin3d2 = {120, 80, 0};
 const Vec3d empty = {0, 0, 0};
 
 int main() {
 	int i;
 	uint angle = 0;
-	uint angle2 = 0;
+	//uint angle2 = 0;
 	uint angle3 = 0;
 	int ca, sa;
-	int ca2, sa2;
+	//int ca2, sa2;
 	int ca3, sa3;
-	int draw_mode = 0;
+	int draw_mode = 1;
 	int rotate_xz = 1;
-	int rotate_xy = 1;
+	//int rotate_xy = 1;
 	int rotate_yz = 1;
+
+	int camera_x = 0;
+	int camera_y = 0;
+	int camera_z = 0;
+	Vec3d camera_t;
 	//u32 time = 0;
 	//Triangle3d t1 = {{0, 0, 0}, {10, 10, 0}, {5, 20, 0}};
 
@@ -168,18 +174,25 @@ int main() {
 #if N_QUADS > 0
 		dma3_cpy(qmesh2, qmesh1, sizeof(qmesh2));
 #endif
+		memcpy(&origin3d2, &origin3d, sizeof(Vec3d));
 
 		//angle2 = angle / 2;
 		ca = lu_cos(angle) / (1 << SHIFTDIF);
-		ca2 = lu_cos(angle2) / (1 << SHIFTDIF);
+		//ca2 = lu_cos(angle2) / (1 << SHIFTDIF);
 		ca3 = lu_cos(angle3) / (1 << SHIFTDIF);
 		sa = lu_sin(angle) / (1 << SHIFTDIF);
-		sa2 = lu_sin(angle2) / (1 << SHIFTDIF);
+		//sa2 = lu_sin(angle2) / (1 << SHIFTDIF);
 		sa3 = lu_sin(angle3) / (1 << SHIFTDIF);
 		//rot_mesh(&mesh2, &rot_vec_xz, ca, sa);
 		if (rotate_xz) rot_mesh(&mesh2, &rot_vec_xz, ca, sa);
-		if (rotate_xy) rot_mesh(&mesh2, &rot_vec_xy, ca2, sa2);
+		//if (rotate_xy) rot_mesh(&mesh2, &rot_vec_xy, ca2, sa2);
 		if (rotate_yz) rot_mesh(&mesh2, &rot_vec_yz, ca3, sa3);
+		rot_vec_xz(&origin3d2, ca, sa);
+
+		camera_t.x = -camera_x;
+		camera_t.y = -camera_y;
+		camera_t.z = -camera_z;
+		trans_mesh(&mesh2, &camera_t);
 
 		key_poll();
 		if (key_hit(KEY_START)) draw_mode = !draw_mode;
@@ -194,15 +207,16 @@ int main() {
 		sort_quads(qmesh2_, N_QUADS);
 #endif
 
-		angle += 400*bit_tribool(__key_curr, KI_RIGHT, KI_LEFT);
-		angle2 += 400*bit_tribool(__key_curr, KI_A, KI_B);
+		//angle += 400*bit_tribool(__key_curr, KI_RIGHT, KI_LEFT);
+		camera_x += 2*bit_tribool(__key_curr, KI_RIGHT, KI_LEFT);
+		angle += 400*bit_tribool(__key_curr, KI_A, KI_B);
 		angle3 += 400*bit_tribool(__key_curr, KI_UP, KI_DOWN);
 
 		profile_start();
 		//puts_int(REG_VCOUNT, 50);
 		if (draw_mode) {
 			m4_puts(190, 30, "Persp", 3);
-			draw_mesh_persp(&origin, &mesh2);
+			draw_mesh_persp(&origin, &origin3d2, &mesh2);
 		} else {
 			m4_puts(190, 30, "Orth", 2);
 			draw_mesh_ortho(&origin, &mesh2);

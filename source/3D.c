@@ -60,6 +60,7 @@ void rot_triangles(Triangle3d** triangles, uint len, void (*f)(Vec3d*, int, int)
 		f(&t->c, ca, sa);
 	}
 }
+
 void rot_quads(Quad3d** quads, uint len, void (*f)(Vec3d*, int, int), int ca, int sa) {
 	int i;
 	Quad3d* q;
@@ -71,10 +72,36 @@ void rot_quads(Quad3d** quads, uint len, void (*f)(Vec3d*, int, int), int ca, in
 		f(&q->d, ca, sa);
 	}
 }
+
 void rot_mesh(Mesh* mesh, void (*f)(Vec3d*, int, int), int ca, int sa) {
 	rot_triangles(mesh->triangles, mesh->tri_n, f, ca, sa);
 	rot_segments(mesh->segments, mesh->seg_n, f, ca, sa);
 	rot_quads(mesh->quads, mesh->quad_n, f, ca, sa);
+}
+
+void trans_mesh(Mesh* mesh, Vec3d* v) {
+	int i;
+	Triangle3d* tri;
+	Quad3d* quad;
+	Segment* seg;
+	for (i=0; i<mesh->tri_n; i++) {
+		tri = mesh->triangles[i];
+		add_Vec3d(&tri->a, &tri->a, v);
+		add_Vec3d(&tri->b, &tri->b, v);
+		add_Vec3d(&tri->c, &tri->c, v);
+	}
+	for (i=0; i<mesh->quad_n; i++) {
+		quad = mesh->quads[i];
+		add_Vec3d(&quad->a, &quad->a, v);
+		add_Vec3d(&quad->b, &quad->b, v);
+		add_Vec3d(&quad->c, &quad->c, v);
+		add_Vec3d(&quad->d, &quad->d, v);
+	}
+	for (i=0; i<mesh->seg_n; i++) {
+		seg = &mesh->segments[i];
+		add_Vec3d(&seg->a, &seg->a, v);
+		add_Vec3d(&seg->b, &seg->b, v);
+	}
 }
 
 void draw_line_ortho(const Vec2d* o, const Vec3d* a, const Vec3d* b) {
@@ -117,63 +144,68 @@ void draw_quad_ortho(const Vec2d* o, Quad3d* q) {
 
 #define PLANE_DISTANCE 90
 
-void project(Vec3d* out, const Vec3d* point) {
-	int obj_distance = PLANE_DISTANCE + 30 + point->z;
+void project(const Vec3d* o, Vec3d* out, const Vec3d* point) {
+	int obj_distance = PLANE_DISTANCE + 40 + point->z + o->z;
 	out->x = point->x * PLANE_DISTANCE / obj_distance;
 	out->y = point->y * PLANE_DISTANCE / obj_distance;
 	out->z = point->z;
 }
 
-void draw_line_persp(const Vec2d* o, const Vec3d* a, const Vec3d* b) {
-	Vec3d a2, b2;
-	project(&a2, a);
-	project(&b2, b);
-	draw_line_ortho(o, &a2, &b2);
+void vec3dto2d(Vec2d* out, const Vec3d* in) {
+	out->x = in->x;
+	out->y = in->y;
 }
 
-void draw_segments_persp(const Vec2d* o, Segment* segments, uint len) {
+void draw_line_persp(const Vec2d* o2d, const Vec3d* o3d, const Vec3d* a, const Vec3d* b) {
+	Vec3d a2, b2;
+	project(o3d, &a2, a);
+	project(o3d, &b2, b);
+	draw_line_ortho(o2d, &a2, &b2);
+}
+
+void draw_segments_persp(const Vec2d* o2d, const Vec3d* o3d, Segment* segments, uint len) {
 	int i;
 	Segment* s;
 	for (i=0; i < len; i++) {
 		s = &segments[i];
-		draw_line_persp(o, &s->a, &s->b);
+		draw_line_persp(o2d, o3d, &s->a, &s->b);
 	}
 }
 
-void draw_triangle_persp(const Vec2d* o, const Triangle3d* t) {
+void draw_triangle_persp(const Vec2d* o2d, const Vec3d* o3d, const Triangle3d* t) {
 	Triangle3d t2;
-	project(&t2.a, &t->a);
-	project(&t2.b, &t->b);
-	project(&t2.c, &t->c);
+	project(o3d, &t2.a, &t->a);
+	project(o3d, &t2.b, &t->b);
+	project(o3d, &t2.c, &t->c);
 	t2.color = t->color;
-	draw_triangle_ortho(o, &t2);
+	draw_triangle_ortho(o2d, &t2);
 }
 
-void draw_triangles_persp(const Vec2d* o, Triangle3d** triangles, uint len) {
+void draw_triangles_persp(const Vec2d* o2d, const Vec3d* o3d, Triangle3d** triangles, uint len) {
 	int i;
 	Triangle3d* t;
 	for (i=0; i < len; i++) {
 		t = triangles[i];
-		draw_triangle_persp(o, t);
+		draw_triangle_persp(o2d, o3d, t);
 	}
 }
 
-void draw_quad_persp(const Vec2d* o, const Quad3d* q) {
+void draw_quad_persp(const Vec2d* o2d, const Vec3d* o3d, const Quad3d* q) {
 	Quad3d q2;
-	project(&q2.a, &q->a);
-	project(&q2.b, &q->b);
-	project(&q2.c, &q->c);
-	project(&q2.d, &q->d);
+	project(o3d, &q2.a, &q->a);
+	project(o3d, &q2.b, &q->b);
+	project(o3d, &q2.c, &q->c);
+	project(o3d, &q2.d, &q->d);
 	q2.color = q->color;
-	draw_quad_ortho(o, &q2);
+	draw_quad_ortho(o2d, &q2);
 }
 
-void draw_quads_persp(const Vec2d* o, Quad3d** quads, uint len) {
+void draw_quads_persp(const Vec2d* o2d, const Vec3d* o3d, Quad3d** quads, uint len) {
 	int i;
 	Quad3d* q;
 	for (i=0; i < len; i++) {
 		q = quads[i];
-		draw_quad_persp(o, q);
+		draw_quad_persp(o2d, o3d, q);
 	}
 }
 void draw_quads_ortho(const Vec2d* o, Quad3d** quads, uint len) {
@@ -184,9 +216,9 @@ void draw_quads_ortho(const Vec2d* o, Quad3d** quads, uint len) {
 		draw_quad_ortho(o, q);
 	}
 }
-void draw_mesh_persp(const Vec2d* o, Mesh* mesh) {
-	draw_triangles_persp(o, mesh->triangles, mesh->tri_n);
-	draw_quads_persp(o, mesh->quads, mesh->quad_n);
+void draw_mesh_persp(const Vec2d* o2d, const Vec3d* o3d, Mesh* mesh) {
+	draw_triangles_persp(o2d, o3d, mesh->triangles, mesh->tri_n);
+	draw_quads_persp(o2d, o3d, mesh->quads, mesh->quad_n);
 //	draw_segments_persp(o, mesh->segments, mesh->seg_n);
 }
 void draw_mesh_ortho(const Vec2d* o, Mesh* mesh) {
@@ -195,7 +227,8 @@ void draw_mesh_ortho(const Vec2d* o, Mesh* mesh) {
 	draw_quads_ortho(o, mesh->quads, mesh->quad_n);
 }
 
-void draw_hline(const Vec2d* o, int y, int x1, int x2, int z, uint color) {
+//void draw_hline(const Vec2d* o, int y, int x1, int x2, int z, uint color) {
+void draw_hline(const Vec2d* o, int y, int x1, int x2, uint color) {
 	int tmp;
 	if (x1 == x2)
 		return;
